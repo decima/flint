@@ -1,0 +1,4 @@
+### GET all users
+GET {{hostname}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}

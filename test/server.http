@@ -1,0 +1,31 @@
+### GET all servers
+GET {{hostname}}/servers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### POST create a new server
+POST {{hostname}}/servers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "new-server",
+  "host": "192.168.1.1",
+  "port": 22,
+  "username": "henri",
+  "ssh_key": "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArD1..."
+}
+
+
+### POST create minimal new server
+POST {{hostname}}/servers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "host": "192.168.1.1",
+  "username": "henri",
+  "ssh_key": "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArD1..."
+}
+

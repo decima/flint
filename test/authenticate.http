@@ -1,0 +1,46 @@
+### POST setup initial user
+POST {{hostname}}/setup
+Content-Type: application/json
+
+{
+  "username": "decima",
+  "password": "password"
+}
+
+### POST authenticate user
+#### response payload: {
+#  "result": {
+#    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTkwMTYxMjEsInJvbGUiOiJVU0VSIiwidXNlciI6ImRlY2ltYSJ9.GhXXyRhyqyA50v4tyialr_Nvqslp3E6gs_1AxJIWXBE",
+#    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTk2MTM3MjEsInJlZnJlc2giOnRydWUsInVzZXIiOiJkZWNpbWEifQ.J0U4zeKegZmIpM_opHkYZ1fyKRB11r7s1D7VP5WFbXQ"
+#  }
+#}
+POST {{hostname}}/login
+Content-Type: application/json
+
+{
+  "username": "decima",
+  "password": "password"
+}
+
+> {%
+    client.global.set("token", response.body.result.token)
+    client.global.set("refresh_token", response.body.result.refresh_token)
+%}
+
+### POST refresh token
+POST {{hostname}}/login/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+> {%
+    client.global.set("token", response.body.result.token)
+    client.global.set("refresh_token", response.body.result.refresh_token)
+%}
+
+### GET fetch user details
+GET {{hostname}}/whoami
+Authorization: Bearer {{token}}
+
