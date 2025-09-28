@@ -1,6 +1,0 @@
-# Components
-# This file will contain the components for the API.
-schemas:
-  $ref: "./components/schemas.yaml"
-securitySchemes:
-  $ref: "./components/security.yaml"

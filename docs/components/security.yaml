@@ -1,6 +1,0 @@
-# Security
-# This file will contain the security schemes for the API.
-BearerAuth:
-  type: http
-  scheme: bearer
-  bearerFormat: JWT
