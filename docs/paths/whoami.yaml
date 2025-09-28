@@ -1,0 +1,26 @@
+get:
+  tags:
+    - Authentication
+  summary: Get current user
+  description: Returns information about the currently authenticated user.
+  security:
+    - BearerAuth: []
+  responses:
+    "200":
+      description: Current user information.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/CurrentUserResponse"
+    "401":
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/Error"
+    "500":
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/Error"

@@ -1,0 +1,31 @@
+post:
+  tags:
+    - Authentication
+  summary: User login
+  description: Authenticates a user and returns a JWT token.
+  requestBody:
+    description: User credentials.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas.yaml#/CredentialsPayload"
+  responses:
+    "200":
+      description: Authentication successful.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/AuthResponsePayload"
+    "400":
+      description: Invalid payload.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/Error"
+    "401":
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/Error"

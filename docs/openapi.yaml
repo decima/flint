@@ -1,0 +1,14 @@
+openapi: 3.0.0
+info:
+  title: Flint
+  description: |
+    # Flint
+    The Flint API provides a RESTful interface to interact with the Flint service.
+  version: 0.1.0
+servers:
+  - url: /
+    description: The current server
+paths:
+  $ref: "./paths.yaml"
+components:
+  $ref: "./components.yaml"

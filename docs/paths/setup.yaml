@@ -1,0 +1,33 @@
+post:
+  tags:
+    - Setup
+  summary: Initial setup
+  description: |
+    Performs the initial setup for Flint by creating the first user.
+    This endpoint is only available if no users exist in the system.
+  requestBody:
+    description: The username and password for the first user.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas.yaml#/SetupPayload"
+  responses:
+    "200":
+      description: Setup was successful.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/GenericResponse"
+    "400":
+      description: Invalid payload.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/Error"
+    "500":
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/Error"

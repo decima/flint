@@ -1,0 +1,12 @@
+get:
+  tags:
+    - General
+  summary: Welcome to Flint
+  description: Returns a welcome message.
+  responses:
+    "200":
+      description: Welcome message.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas.yaml#/GenericResponse"

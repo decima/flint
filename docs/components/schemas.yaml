@@ -1,0 +1,117 @@
+# Schemas
+# This file contains the data structures used in the API.
+
+# Generic
+Error:
+  type: object
+  properties:
+    code:
+      type: integer
+      format: int32
+    message:
+      type: string
+GenericResponse:
+  type: object
+  properties:
+    data:
+      type: object
+    message:
+      type: string
+    details:
+      type: string
+
+# Setup
+SetupPayload:
+  type: object
+  required:
+    - username
+    - password
+  properties:
+    username:
+      type: string
+      minLength: 6
+    password:
+      type: string
+      minLength: 6
+
+# Authentication
+CredentialsPayload:
+  type: object
+  required:
+    - username
+    - password
+  properties:
+    username:
+      type: string
+    password:
+      type: string
+RefreshTokenPayload:
+  type: object
+  required:
+    - refresh_token
+  properties:
+    refresh_token:
+      type: string
+AuthResponsePayload:
+  type: object
+  properties:
+    token:
+      type: string
+    refresh_token:
+      type: string
+CurrentUserResponse:
+  type: object
+  properties:
+    username:
+      type: string
+    role:
+      type: string
+      enum: [ "user", "admin" ]
+
+# Servers
+ServerCreatePayload:
+  type: object
+  required:
+    - host
+    - username
+    - ssh_key
+  properties:
+    name:
+      type: string
+    port:
+      type: integer
+      default: 22
+    host:
+      type: string
+    username:
+      type: string
+    ssh_key:
+      type: string
+ServerResponse:
+  type: object
+  properties:
+    name:
+      type: string
+    host:
+      type: string
+    port:
+      type: integer
+    username:
+      type: string
+ServerListResponse:
+  type: object
+  properties:
+    servers:
+      type: array
+      items:
+        $ref: "#/ServerResponse"
+
+# Users
+User:
+  type: object
+  properties:
+    username:
+      type: string
+    role:
+      type: string
+      enum: [ "user", "admin" ]
