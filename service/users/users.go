@@ -8,7 +8,10 @@ import (
 )
 
 var Module = fx.Provide(
-	NewUserStorage,
+	fx.Annotate(
+		NewUserStorage,
+		fx.As(new(UserStorageInterface)),
+	),
 	fx.Annotate(
 		NewUserManager,
 		fx.As(new(contracts.UsersManagerInterface)),

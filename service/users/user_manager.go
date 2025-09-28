@@ -10,7 +10,7 @@ import (
 
 type Manager struct {
 	PasswordHasher security.PasswordHasherInterface
-	userStorage    *UserStorage
+	userStorage    UserStorageInterface
 }
 
 func (u *Manager) UserExists(username string) bool {
@@ -50,28 +50,59 @@ func (u *Manager) CreateUser(username string, password string, role security.Rol
 }
 
 func (u *Manager) UpdateUser(username string, password string, role security.Role) error {
-	user, err := u.GetUser(username)
+	users, err := u.ListUsers()
 	if err != nil {
 		return err
 	}
+
+	userIndex := -1
+	for i := range users {
+		if users[i].Username == username {
+			userIndex = i
+			break
+		}
+	}
+
+	if userIndex == -1 {
+		return contracts.NotFoundUserErr
+	}
+
 	if password != "" {
 		newPassword, err := u.PasswordHasher.Hash(password)
 		if err != nil {
 			return err
 		}
-		user.HashedPassword = newPassword
+		users[userIndex].HashedPassword = newPassword
 	}
 
 	if role != "" {
-		user.Role = role
+		users[userIndex].Role = role
 	}
 
-	return nil
+	return u.userStorage.Set(users)
 }
 
 func (u *Manager) DeleteUser(username string) error {
-	//TODO implement me
-	panic("implement me")
+	users, err := u.ListUsers()
+	if err != nil {
+		return err
+	}
+
+	foundIndex := -1
+	for i, user := range users {
+		if user.Username == username {
+			foundIndex = i
+			break
+		}
+	}
+
+	if foundIndex == -1 {
+		return contracts.NotFoundUserErr
+	}
+
+	users = append(users[:foundIndex], users[foundIndex+1:]...)
+
+	return u.userStorage.Set(users)
 }
 
 func (u *Manager) GetUser(username string) (model.User, error) {
@@ -95,6 +126,6 @@ func (u *Manager) ListUsers() ([]model.User, error) {
 	return users, nil
 }
 
-func NewUserManager(passwordHasher security.PasswordHasherInterface, userStorage *UserStorage) *Manager {
+func NewUserManager(passwordHasher security.PasswordHasherInterface, userStorage UserStorageInterface) *Manager {
 	return &Manager{passwordHasher, userStorage}
 }

@@ -11,11 +11,11 @@ func TestHash(t *testing.T) {
 		t.Fatalf("Failed to hash password: %v", err)
 	}
 
-	if !hasher.Verify(password, hash) {
+	if !hasher.Verify(hash, password) {
 		t.Errorf("Password verification failed")
 	}
 
-	if hasher.Verify("wrong_password", hash) {
+	if hasher.Verify(hash, "wrong_password") {
 		t.Errorf("Password verification should have failed for wrong password")
 	}
 }
