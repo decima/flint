@@ -24,9 +24,9 @@ func (p *GetAllHandler) Route() (utils.Method, utils.Path, *security.Policy) {
 func (p *GetAllHandler) Do(c *gin.Context) {
 	users, err := p.userManager.ListUsers()
 	if err != nil {
-		c.JSON(500, common.NewErrorResponse(err, "Error listing users"))
+		common.InternalServerError(c, "Error listing users", err.Error())
 		return
 	}
 
-	c.JSON(200, common.NewResponse(users))
+	common.Ok(c, users)
 }

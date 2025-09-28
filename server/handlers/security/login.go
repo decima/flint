@@ -33,35 +33,34 @@ func (l LoginHandler) Route() (utils.Method, utils.Path, *security.Policy) {
 
 func (l LoginHandler) Do(c *gin.Context) {
 	payload := CredentialsPayload{}
+	logger := middlewares.GetLogger(c)
+
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "invalid login payload: "+err.Error())
+		logger.Debug().Err(err).Msg("invalid login payload")
+		common.BadRequest(c, "invalid login payload", err.Error())
 		return
 	}
 
 	user, err := l.userManager.GetUser(payload.Username)
 	if err != nil || !l.passwordHasher.Verify(user.HashedPassword, payload.Password) {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "invalid username or password")
+		middlewares.UnauthorizedResponse(c, logger, "invalid username or password")
 		return
 	}
 
 	token, err := l.jwt.GenerateToken(user.Username, user.Role)
 	if err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "Unable to generate token: "+err.Error())
+		middlewares.UnauthorizedResponse(c, logger, "Unable to generate token: "+err.Error())
 		return
 	}
 
 	refresh, err := l.jwt.GenerateRefreshToken(user.Username)
 	if err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "Unable to generate refresh token: "+err.Error())
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		middlewares.UnauthorizedResponse(c, logger, "Unable to generate refresh token: "+err.Error())
 		return
 	}
-	c.JSON(200, common.NewResponse(
-		AuthResponsePayload{
-			Token:        token,
-			RefreshToken: refresh,
-		},
-	))
-	return
 
+	common.Ok(c, AuthResponsePayload{
+		Token:        token,
+		RefreshToken: refresh,
+	})
 }

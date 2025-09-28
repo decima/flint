@@ -1,0 +1,8 @@
+### POST setup initial user
+POST {{hostname}}/setup
+Content-Type: application/json
+
+{
+  "username": "decima",
+  "password": "password"
+}

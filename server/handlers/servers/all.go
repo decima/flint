@@ -24,9 +24,9 @@ func (g GetAllHandler) Route() (utils.Method, utils.Path, *security.Policy) {
 func (g GetAllHandler) Do(c *gin.Context) {
 	servers, err := g.serverCollectionManager.ListServers()
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to retrieve servers"})
+		common.InternalServerError(c, "Failed to retrieve servers", err.Error())
 		return
 	}
 
-	c.JSON(200, common.NewResponse(NewServerListResponse(servers)))
+	common.Ok(c, NewServerListResponse(servers))
 }

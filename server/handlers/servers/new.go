@@ -8,6 +8,7 @@ import (
 	"flint/server/middlewares"
 	"flint/service/contracts"
 	"flint/utils/stringutils"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,6 +27,8 @@ func (csh CreateServerHandler) Route() (utils.Method, utils.Path, *security.Poli
 
 func (csh CreateServerHandler) Do(c *gin.Context) {
 	var payload ServerCreatePayload
+	logger := middlewares.GetLogger(c)
+
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(400, common.NewInvalidPayloadResponse(err))
 		return
@@ -41,19 +44,19 @@ func (csh CreateServerHandler) Do(c *gin.Context) {
 
 	newServer, err := csh.serverManager.CreateServer(payload.Name, payload.Host, payload.Port, payload.Username, payload.SSHKey)
 	if errors.Is(err, contracts.DuplicateServerErr) {
-		c.JSON(409, gin.H{"error": "ServerResponse with this name already exists"})
+		common.Err(c, http.StatusConflict, "server with this name already exists")
 		return
 	}
 	if errors.Is(err, contracts.BadServerNameErr) {
-		c.JSON(400, gin.H{"error": "invalid server name"})
+		common.BadRequest(c, "invalid server name")
 		return
 	}
 
 	if err != nil {
-		middlewares.GetLogger(c).Error().Err(err).Msg("Failed to create server")
-		c.JSON(500, gin.H{"error": "Failed to create server"})
+		logger.Error().Err(err).Msg("Failed to create server")
+		common.InternalServerError(c, "failed to create server", err.Error())
 		return
 	}
 
-	c.JSON(201, common.NewResponse(NewServerResponse(payload.Name, newServer), "Server created"))
+	common.Ok(c, NewServerResponse(payload.Name, newServer), "Server created")
 }

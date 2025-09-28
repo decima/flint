@@ -21,43 +21,42 @@ func (r RefreshTokenHandler) Route() (utils.Method, utils.Path, *security.Policy
 
 func (r RefreshTokenHandler) Do(c *gin.Context) {
 	refreshTokenPayload := RefreshTokenPayload{}
+	logger := middlewares.GetLogger(c)
+
 	if err := c.ShouldBindJSON(&refreshTokenPayload); err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "invalid login payload: "+err.Error())
+		logger.Debug().Err(err).Msg("invalid refresh token payload")
+		common.BadRequest(c, "invalid refresh token payload", err.Error())
 		return
 	}
 
 	username, err := r.jwt.ValidateRefreshToken(refreshTokenPayload.RefreshToken)
 	if err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "cannot validate refresh token: "+err.Error())
+		middlewares.UnauthorizedResponse(c, logger, "cannot validate refresh token: "+err.Error())
 		return
 	}
 
 	user, err := r.userManager.GetUser(username)
 	if err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "cannot find user: "+err.Error())
+		middlewares.UnauthorizedResponse(c, logger, "cannot find user: "+err.Error())
 		return
 	}
 
 	token, err := r.jwt.GenerateToken(user.Username, user.Role)
 	if err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "Unable to generate token: "+err.Error())
+		middlewares.UnauthorizedResponse(c, logger, "Unable to generate token: "+err.Error())
 		return
 	}
 
 	refresh, err := r.jwt.GenerateRefreshToken(user.Username)
 	if err != nil {
-		middlewares.UnauthorizedResponse(c, middlewares.GetLogger(c), "Unable to generate refresh token: "+err.Error())
-		c.JSON(401, gin.H{"error": "Unauthorized"})
+		middlewares.UnauthorizedResponse(c, logger, "Unable to generate refresh token: "+err.Error())
 		return
 	}
-	c.JSON(200, common.NewResponse(
-		AuthResponsePayload{
-			Token:        token,
-			RefreshToken: refresh,
-		},
-	))
-	return
 
+	common.Ok(c, AuthResponsePayload{
+		Token:        token,
+		RefreshToken: refresh,
+	})
 }
 
 func NewRefreshTokenHandler(jwt *security.Jwt, userManager contracts.UsersManagerInterface) *RefreshTokenHandler {
