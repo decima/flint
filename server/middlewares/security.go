@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"flint/security"
+	"flint/server/common"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -104,5 +105,5 @@ func (a *AuthMiddleware) Handler() gin.HandlerFunc {
 
 func UnauthorizedResponse(c *gin.Context, logger *zerolog.Logger, message string) {
 	logger.Debug().Msg(message)
-	c.AbortWithStatusJSON(401, gin.H{"error": "Unauthorized"})
+	common.Unauthorized(c, "Unauthorized")
 }

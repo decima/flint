@@ -40,6 +40,9 @@ func (m *Manager) CreateServer(name string, hostOrIp string, port int, user stri
 
 		return nil
 	})
+	if err != nil {
+		return model.Server{}, err
+	}
 
 	servers, err := m.ServerStorage.Get()
 	if err != nil && err != storage.NotFoundErr {

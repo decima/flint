@@ -40,20 +40,18 @@ func (s SetupHandler) Route() (utils.Method, utils.Path, *security.Policy) {
 func (s SetupHandler) Do(c *gin.Context) {
 	payload := SetupPayload{}
 	if err := c.ShouldBindJSON(&payload); err != nil {
-
 		c.JSON(400, common.NewInvalidPayloadResponse(err))
 		return
 	}
 
 	if err := s.userManager.CreateUser(payload.Username, payload.Password, security.User); err != nil {
-		c.JSON(500, common.NewErrorResponse(err, "Error creating user"))
+		common.InternalServerError(c, "Error creating user", err.Error())
 		return
 	}
 
-	c.JSON(200, common.NewResponse(Response{
+	common.Ok(c, Response{
 		Username: payload.Username,
-	}, "Setup completed", "You can now log in with your user"))
-
+	}, "Setup completed", "You can now log in with your user")
 }
 
 func NewSetupHandler(userManager contracts.UsersManagerInterface, logger *zerolog.Logger) *SetupHandler {

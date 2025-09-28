@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"flint/server/common"
 	"flint/service/contracts"
 	"flint/service/model"
 
@@ -23,9 +24,11 @@ func (l *LoadUserMiddleware) Do(c *gin.Context) {
 
 	user, err := l.userManager.GetUser(userID)
 	if err != nil {
-		c.AbortWithStatusJSON(404, gin.H{"error": "User not found"})
+		common.NotFound(c, "user not found")
+		return
 	}
 	c.Set(CurrentUserKey, &user)
+	c.Next()
 }
 
 func GetCurrentUser(c *gin.Context) (*model.User, bool) {

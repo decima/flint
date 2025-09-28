@@ -23,14 +23,12 @@ func NewWhoAmIHandler() *WhoAmIHandler {
 func (w WhoAmIHandler) Do(c *gin.Context) {
 	user, exists := middlewares.GetCurrentUser(c)
 	if !exists {
-		c.JSON(500, gin.H{"error": "Internal server error"})
+		common.InternalServerError(c, "user not found in context")
 		return
 	}
 
-	c.JSON(200, common.NewResponse(
-		CurrentUserResponse{
-			Username: user.Username,
-			Role:     user.Role,
-		},
-	))
+	common.Ok(c, CurrentUserResponse{
+		Username: user.Username,
+		Role:     user.Role,
+	})
 }
