@@ -21,7 +21,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Welcome to Flint!"
+                  notes:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Land of stones."]
   /setup:
     post:
       tags:
@@ -43,19 +52,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                  message:
+                    type: string
+                    example: "Setup completed"
+                  notes:
+                    type: array
+                    items:
+                      type: string
+                    example: ["You can now log in with your user"]
         "400":
           description: Invalid payload.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal server error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
   /login:
     post:
       tags:
@@ -75,19 +98,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthResponsePayload"
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/AuthResponsePayload"
         "400":
           description: Invalid payload.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
   /login/refresh:
     post:
       tags:
@@ -107,19 +133,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthResponsePayload"
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/AuthResponsePayload"
         "400":
           description: Invalid payload.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
   /whoami:
     get:
       tags:
@@ -134,19 +163,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CurrentUserResponse"
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/CurrentUserResponse"
         "401":
           description: Unauthorized.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal server error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
   /servers:
     get:
       tags:
@@ -161,13 +193,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServerListResponse"
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/ServerListResponse"
         "500":
           description: Internal server error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       tags:
         - Servers
@@ -188,25 +223,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                type: object
+                properties:
+                  result:
+                    $ref: '#/components/schemas/ServerResponse'
+                  message:
+                    type: string
+                    example: "Server created"
         "400":
           description: Invalid payload or server name.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
         "409":
           description: A server with this name already exists.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Internal server error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
   /users:
     get:
       tags:
@@ -221,15 +262,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
         "500":
           description: Internal server error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   securitySchemes:
@@ -238,26 +282,38 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
-    # Generic
-    Error:
+    # Error Schemas
+    InvalidPayloadField:
       type: object
       properties:
-        code:
-          type: integer
-          format: int32
-        message:
+        field:
           type: string
-    GenericResponse:
+        error:
+          type: string
+        param:
+          type: string
+    HttpError:
       type: object
       properties:
-        data:
-          type: object
+        error:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        result:
+          oneOf:
+            - $ref: '#/components/schemas/HttpError'
+            - type: array
+              items:
+                $ref: '#/components/schemas/InvalidPayloadField'
         message:
           type: string
-        details:
-          type: string
+        notes:
+          type: array
+          items:
+            type: string
 
-    # Setup
+    # Request Body Payloads
     SetupPayload:
       type: object
       required:
@@ -270,8 +326,6 @@ components:
         password:
           type: string
           minLength: 6
-
-    # Authentication
     CredentialsPayload:
       type: object
       required:
@@ -289,23 +343,6 @@ components:
       properties:
         refresh_token:
           type: string
-    AuthResponsePayload:
-      type: object
-      properties:
-        token:
-          type: string
-        refresh_token:
-          type: string
-    CurrentUserResponse:
-      type: object
-      properties:
-        username:
-          type: string
-        role:
-          type: string
-          enum: [ "user", "admin" ]
-
-    # Servers
     ServerCreatePayload:
       type: object
       required:
@@ -324,6 +361,23 @@ components:
           type: string
         ssh_key:
           type: string
+
+    # Schemas for 'result' field in successful responses
+    AuthResponsePayload:
+      type: object
+      properties:
+        token:
+          type: string
+        refresh_token:
+          type: string
+    CurrentUserResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        role:
+          type: string
+          enum: [ "USER", "ADMIN" ]
     ServerResponse:
       type: object
       properties:
@@ -342,8 +396,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ServerResponse"
-
-    # Users
     User:
       type: object
       properties:
@@ -351,4 +403,4 @@ components:
           type: string
         role:
           type: string
-          enum: [ "user", "admin" ]
+          enum: [ "USER", "ADMIN" ]
