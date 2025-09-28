@@ -17,49 +17,36 @@ func (m *Manager) CreateServer(name string, hostOrIp string, port int, user stri
 	if !stringutils.IsValidSlug(name) {
 		return model.Server{}, contracts.BadServerNameErr
 	}
+
 	var server model.Server
 	err := m.ServerStorage.Transaction(func(servers *contracts.ServerCollection, err error) error {
-		if *servers == nil {
-			*servers = map[string]model.Server{}
-		}
 		if err != nil && !errors.Is(err, storage.NotFoundErr) {
 			return fmt.Errorf("failed to load servers: %w", err)
+		}
+		if *servers == nil {
+			*servers = make(contracts.ServerCollection)
 		}
 
 		if _, exists := (*servers)[name]; exists {
 			return contracts.DuplicateServerErr
 		}
+
 		server = model.Server{
 			Host:     hostOrIp,
 			Username: user,
 			Port:     port,
 			Key:      sshKey,
 		}
-
 		(*servers)[name] = server
 
 		return nil
 	})
+
 	if err != nil {
 		return model.Server{}, err
 	}
 
-	servers, err := m.ServerStorage.Get()
-	if err != nil && err != storage.NotFoundErr {
-		return model.Server{}, err
-	}
-
-	servers[name] = model.Server{
-		Host:     hostOrIp,
-		Username: user,
-		Port:     port,
-		Key:      sshKey,
-	}
-
-	if err := m.ServerStorage.Set(servers); err != nil {
-		return model.Server{}, err
-	}
-	return servers[name], nil
+	return server, nil
 }
 
 func (m *Manager) DeleteServer(name string) error {
