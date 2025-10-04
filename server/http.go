@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -31,15 +33,42 @@ func NewGinEngine(gep GinEngineParams,
 		r.Use(m.Do)
 	}
 
+	// Serve static files from the frontend
+	r.Static("/assets", "./frontend/dist/assets")
+
+	// API routes
+	api := r.Group("/api")
+	api.Use(gep.AuthMiddleware.Handler())
+	api.Use(gep.LoadUser.Do)
+
 	for _, route := range gep.Routes {
 		method, path, securityPolicy := route.Route()
-		group := r.Group("")
-		group.
-			Use(gep.AuthMiddleware.Handler()).
-			Use(gep.PolicyMiddleware.Handler(securityPolicy)).
-			Use(gep.LoadUser.Do).
-			Handle(string(method), string(path), route.Do)
+		api.Handle(
+			string(method),
+			string(path),
+			gep.PolicyMiddleware.Handler(securityPolicy),
+			route.Do,
+		)
 	}
+
+	// For any other route, serve the frontend's index.html.
+	// This is needed for single-page applications.
+	r.NoRoute(func(c *gin.Context) {
+		if _, err := os.Stat("./frontend/dist/index.html"); err == nil {
+			c.File("./frontend/dist/index.html")
+			return
+		}
+		// reverse proxy to localhost:5173 if index.html doesn't exist
+		reverseProxy := &httputil.ReverseProxy{
+			Director: func(req *http.Request) {
+				req.URL.Scheme = "http"
+				req.URL.Path = c.Request.URL.Path
+				req.URL.Host = "localhost:5173"
+				req.Host = "localhost:5173"
+			},
+		}
+		reverseProxy.ServeHTTP(c.Writer, c.Request)
+	})
 
 	return r
 }
