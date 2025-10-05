@@ -4,6 +4,7 @@ import (
 	"flint/service/contracts"
 	"flint/service/model"
 	"io"
+	"strings"
 )
 
 // todo : implement actions for servers:
@@ -37,5 +38,23 @@ func (l *ActionMaker) DockerVersion(server model.Server) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return output, nil
+	return strings.Trim(output, "\n"), nil
+}
+
+func (l *ActionMaker) DockerComposeVersion(server model.Server) (string, error) {
+	var output string
+	err := l.remote.Execute(server, "docker compose version --short", func(out io.Reader) error {
+		buf := make([]byte, 1024)
+		n, err := out.Read(buf)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		output += string(buf[:n])
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+	return strings.Trim(output, "\n"), nil
 }

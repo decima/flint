@@ -41,15 +41,16 @@ Authorization: Bearer {{token}}
 GET {{hostname}}/servers/localhost/files/
 Authorization: Bearer {{token}}
 
-###
-GET {{hostname}}/servers/localhost/files/kiwi.txt
-Authorization: Bearer {{token}}
 
 ###
 PUT {{hostname}}/servers/localhost/files/a/b/c/kiwi2.txt
 Authorization: Bearer {{token}}
 
 bonjour le bordel.
+
+###
+GET {{hostname}}/servers/localhost/files/a/b/c/kiwi2.txt
+Authorization: Bearer {{token}}
 
 ###
 DELETE {{hostname}}/servers/localhost/files/a
