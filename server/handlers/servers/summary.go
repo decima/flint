@@ -42,7 +42,20 @@ func (s SummaryHandler) Do(c *gin.Context) {
 		}
 
 		mux.Lock()
-		summary["docker_version"] = dockerVersion
+		summary["dockerVersion"] = dockerVersion
+		mux.Unlock()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		dockerVersion, err := s.serverActions.DockerComposeVersion(server)
+		if err != nil {
+			return
+		}
+
+		mux.Lock()
+		summary["dockerComposeVersion"] = dockerVersion
 		mux.Unlock()
 	}()
 

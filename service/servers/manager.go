@@ -7,7 +7,6 @@ import (
 	"flint/service/storage"
 	"flint/utils/stringutils"
 	"fmt"
-	"log"
 )
 
 type Manager struct {
@@ -26,7 +25,15 @@ func (m *Manager) Validate(server model.Server) error {
 	if version == "" {
 		return contracts.InvalidServerErr
 	}
-	log.Println("THE VERSION IS...", version)
+
+	dcVersion, err := m.serverActions.DockerComposeVersion(server)
+	if err != nil {
+		return fmt.Errorf("failed to get docker compose version: %w. this maybe means that you are running an older docker version %v", err, version)
+	}
+	if dcVersion == "" {
+		return contracts.InvalidServerErr
+	}
+
 	return nil
 }
 
