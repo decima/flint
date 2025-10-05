@@ -1,6 +1,7 @@
 package service
 
 import (
+	"flint/service/remote"
 	"flint/service/servers"
 	"flint/service/users"
 
@@ -8,6 +9,7 @@ import (
 )
 
 var Module = fx.Module("service",
+	remote.Module,
 	users.Module,
 	servers.Module,
 )

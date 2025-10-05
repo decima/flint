@@ -10,12 +10,19 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "new-server",
-  "host": "192.168.1.1",
+  "name": "localhost",
+  "host": "localhost",
   "port": 22,
-  "username": "henri",
-  "ssh_key": "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArD1..."
+  "username": "decima",
+  "workDir": "./flinttmp",
+  "password": "SOME_PASSWORD_FOR_TESTING"
 }
+
+
+### POST create a new server
+GET {{hostname}}/servers/localhost/summary
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 
 ### POST create minimal new server
@@ -26,6 +33,6 @@ Authorization: Bearer {{token}}
 {
   "host": "192.168.1.1",
   "username": "henri",
-  "ssh_key": "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArD1..."
+  "ssh_key": "remote-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArD1..."
 }
 

@@ -41,8 +41,11 @@ func (csh CreateServerHandler) Do(c *gin.Context) {
 	if payload.Port == 0 {
 		payload.Port = 22
 	}
+	if payload.Workdir == "" {
+		payload.Workdir = "."
+	}
 
-	newServer, err := csh.serverManager.CreateServer(payload.Name, payload.Host, payload.Port, payload.Username, payload.SSHKey)
+	newServer, err := csh.serverManager.CreateServer(payload.Name, payload.Host, payload.Port, payload.Username, payload.Workdir, payload.SSHKey, payload.SSHKeyPass, payload.Password)
 	if errors.Is(err, contracts.DuplicateServerErr) {
 		common.Err(c, http.StatusConflict, "server with this name already exists")
 		return
