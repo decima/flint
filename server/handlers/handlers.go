@@ -3,6 +3,7 @@ package handlers
 import (
 	"flint/server/handlers/security"
 	"flint/server/handlers/servers"
+	"flint/server/handlers/servers/files"
 	"flint/server/handlers/setup"
 	"flint/server/handlers/users"
 	"flint/server/handlers/utils"
@@ -20,6 +21,11 @@ var Module = fx.Provide(
 	AsRoute(servers.NewGetAllHandler),
 	AsRoute(servers.NewCreateServerHandler),
 	AsRoute(servers.NewSummaryHandler),
+
+	// Remote File handlers
+	AsRoute(files.NewServerFileGetHandler),
+	AsRoute(files.NewServerFilePutHandler),
+	AsRoute(files.NewServerFileDeleteHandler),
 
 	AsRoute(NewHomepage),
 	AsRoute(users.NewGetAll),
