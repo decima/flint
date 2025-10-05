@@ -22,11 +22,14 @@ func NewServerListResponse(servers contracts.ServerCollection) ServerListRespons
 }
 
 type ServerCreatePayload struct {
-	Name     string `json:"name,omitempty"`
-	Port     int    `json:"port" default:"22"`
-	Host     string `json:"host" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	SSHKey   string `json:"ssh_key" binding:"required"`
+	Name       string `json:"name,omitempty"`
+	Port       int    `json:"port" default:"22"`
+	Host       string `json:"host" binding:"required"`
+	Username   string `json:"username" binding:"required"`
+	SSHKey     string `json:"ssh_key,omitempty"`
+	SSHKeyPass string `json:"ssh_key_pass,omitempty"`
+	Password   string `json:"password,omitempty"`
+	Workdir    string `json:"workdir,omitempty"`
 }
 
 type ServerResponse struct {
@@ -34,6 +37,7 @@ type ServerResponse struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Username string `json:"username"`
+	Workdir  string `json:"workdir,omitempty"`
 }
 
 func NewServerResponse(id string, server model.Server) ServerResponse {
@@ -42,5 +46,6 @@ func NewServerResponse(id string, server model.Server) ServerResponse {
 		Host:     server.Host,
 		Port:     server.Port,
 		Username: server.Username,
+		Workdir:  server.WorkDir,
 	}
 }

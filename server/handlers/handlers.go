@@ -19,9 +19,11 @@ var Module = fx.Provide(
 
 	AsRoute(servers.NewGetAllHandler),
 	AsRoute(servers.NewCreateServerHandler),
+	AsRoute(servers.NewSummaryHandler),
 
 	AsRoute(NewHomepage),
 	AsRoute(users.NewGetAll),
+	AsRoute(NewWebsocketRoute),
 )
 
 func AsRoute(f any) any {
