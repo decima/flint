@@ -36,3 +36,21 @@ Authorization: Bearer {{token}}
   "ssh_key": "remote-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArD1..."
 }
 
+
+###
+GET {{hostname}}/servers/localhost/files/
+Authorization: Bearer {{token}}
+
+###
+GET {{hostname}}/servers/localhost/files/kiwi.txt
+Authorization: Bearer {{token}}
+
+###
+PUT {{hostname}}/servers/localhost/files/a/b/c/kiwi2.txt
+Authorization: Bearer {{token}}
+
+bonjour le bordel.
+
+###
+DELETE {{hostname}}/servers/localhost/files/a
+Authorization: Bearer {{token}}
