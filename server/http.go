@@ -10,6 +10,7 @@ import (
 	"net/http/httputil"
 	"os"
 
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"go.uber.org/fx"
@@ -34,7 +35,7 @@ func NewGinEngine(gep GinEngineParams,
 	}
 
 	// Serve static files from the frontend
-	r.Static("/assets", "./frontend/dist/assets")
+	r.Use(static.Serve("/", static.LocalFile("./frontend/dist", true)))
 
 	// API routes
 	api := r.Group("/api")
@@ -51,14 +52,12 @@ func NewGinEngine(gep GinEngineParams,
 		)
 	}
 
-	// For any other route, serve the frontend's index.html.
-	// This is needed for single-page applications.
 	r.NoRoute(func(c *gin.Context) {
 		if _, err := os.Stat("./frontend/dist/index.html"); err == nil {
 			c.File("./frontend/dist/index.html")
 			return
 		}
-		// reverse proxy to localhost:5173 if index.html doesn't exist
+
 		reverseProxy := &httputil.ReverseProxy{
 			Director: func(req *http.Request) {
 				req.URL.Scheme = "http"
