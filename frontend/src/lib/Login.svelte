@@ -17,28 +17,32 @@
     }
 </script>
 
-<main>
-    <h1>Login</h1>
-    <form on:submit|preventDefault={login}>
-        <div>
-            <label for="username">Username</label>
-            <input id="username" type="text" bind:value={username} required/>
-        </div>
-        <div>
-            <label for="password">Password</label>
-            <input id="password" type="password" bind:value={password} required/>
-        </div>
-        {#if error}
-            <p style="color: red;">{error}</p>
-        {/if}
-        <button type="submit">Login</button>
-    </form>
-</main>
-
-<style>
-    main {
-        max-width: 320px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-</style>
+<div class="card w-96 bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title">Login</h2>
+        <form on:submit|preventDefault={login}>
+            <div class="form-control">
+                <label class="label" for="username">
+                    <span class="label-text">Username</span>
+                </label>
+                <input id="username" type="text" bind:value={username} required class="input input-bordered"/>
+            </div>
+            <div class="form-control">
+                <label class="label" for="password">
+                    <span class="label-text">Password</span>
+                </label>
+                <input id="password" type="password" bind:value={password} required class="input input-bordered"/>
+            </div>
+            {#if error}
+                <div class="alert alert-error mt-4">
+                    <div>
+                        <span>{error}</span>
+                    </div>
+                </div>
+            {/if}
+            <div class="form-control mt-6">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
