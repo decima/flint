@@ -1,8 +1,6 @@
 package security
 
 import (
-	"fmt"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,7 +25,6 @@ func (p *PasswordHasher) Hash(password string) (string, error) {
 }
 
 func (p *PasswordHasher) Verify(hash string, password string) bool {
-	fmt.Println("verifying password :", password, " against hash: ", hash)
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
