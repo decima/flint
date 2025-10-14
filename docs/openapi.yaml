@@ -1,0 +1,406 @@
+openapi: 3.0.0
+info:
+  title: Flint
+  description: |
+    # Flint
+    The Flint API provides a RESTful interface to interact with the Flint service.
+  version: 0.1.0
+servers:
+  - url: /
+    description: The current server
+paths:
+  /:
+    get:
+      tags:
+        - General
+      summary: Welcome to Flint
+      description: Returns a welcome message.
+      responses:
+        "200":
+          description: Welcome message.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Welcome to Flint!"
+                  notes:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Land of stones."]
+  /setup:
+    post:
+      tags:
+        - Setup
+      summary: Initial setup
+      description: |
+        Performs the initial setup for Flint by creating the first user.
+        This endpoint is only available if no users exist in the system.
+      requestBody:
+        description: The username and password for the first user.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetupPayload"
+      responses:
+        "200":
+          description: Setup was successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                  message:
+                    type: string
+                    example: "Setup completed"
+                  notes:
+                    type: array
+                    items:
+                      type: string
+                    example: ["You can now log in with your user"]
+        "400":
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticates a user and returns a JWT token.
+      requestBody:
+        description: User credentials.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CredentialsPayload"
+      responses:
+        "200":
+          description: Authentication successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/AuthResponsePayload"
+        "400":
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /login/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      description: Refreshes a user's JWT token using a refresh token.
+      requestBody:
+        description: Refresh token.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenPayload"
+      responses:
+        "200":
+          description: Token refresh successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/AuthResponsePayload"
+        "400":
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /whoami:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Returns information about the currently authenticated user.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current user information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/CurrentUserResponse"
+        "401":
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /servers:
+    get:
+      tags:
+        - Servers
+      summary: Get all servers
+      description: Returns a list of all configured servers.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: A list of servers.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    $ref: "#/components/schemas/ServerListResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Servers
+      summary: Create a new server
+      description: Creates a new server configuration.
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: The server to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServerCreatePayload"
+      responses:
+        "200":
+          description: The server was created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    $ref: '#/components/schemas/ServerResponse'
+                  message:
+                    type: string
+                    example: "Server created"
+        "400":
+          description: Invalid payload or server name.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: A server with this name already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Returns a list of all registered users.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: A list of users.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    # Error Schemas
+    InvalidPayloadField:
+      type: object
+      properties:
+        field:
+          type: string
+        error:
+          type: string
+        param:
+          type: string
+    HttpError:
+      type: object
+      properties:
+        error:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        result:
+          oneOf:
+            - $ref: '#/components/schemas/HttpError'
+            - type: array
+              items:
+                $ref: '#/components/schemas/InvalidPayloadField'
+        message:
+          type: string
+        notes:
+          type: array
+          items:
+            type: string
+
+    # Request Body Payloads
+    SetupPayload:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 6
+        password:
+          type: string
+          minLength: 6
+    CredentialsPayload:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    RefreshTokenPayload:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+    ServerCreatePayload:
+      type: object
+      required:
+        - host
+        - username
+        - ssh_key
+      properties:
+        name:
+          type: string
+        port:
+          type: integer
+          default: 22
+        host:
+          type: string
+        username:
+          type: string
+        ssh_key:
+          type: string
+
+    # Schemas for 'result' field in successful responses
+    AuthResponsePayload:
+      type: object
+      properties:
+        token:
+          type: string
+        refresh_token:
+          type: string
+    CurrentUserResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        role:
+          type: string
+          enum: [ "USER", "ADMIN" ]
+    ServerResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        host:
+          type: string
+        port:
+          type: integer
+        username:
+          type: string
+    ServerListResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServerResponse"
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        role:
+          type: string
+          enum: [ "USER", "ADMIN" ]
