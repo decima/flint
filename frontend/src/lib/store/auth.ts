@@ -1,4 +1,5 @@
 import {writable} from "svelte/store";
+import {ERR_NEEDS_RE_LOGIN} from "$lib/constants";
 
 export const authToken = writable<{ token: string | null, refresh: string | null } | null>(null);
 
@@ -41,9 +42,8 @@ export async function refresh(refresh: string) {
         body: JSON.stringify({refresh_token: refresh})
     })
 
-    console.log("Refreshing token", response)
     if (!response.ok) {
-        throw new Error("Failed to refresh token");
+        throw ERR_NEEDS_RE_LOGIN;
     }
     const data = (await response.json()).result;
     const formattedToken = {token: data.token, refresh: data.refresh_token};
@@ -54,3 +54,5 @@ export async function refresh(refresh: string) {
 export async function logout() {
     clearAuthToken();
 }
+
+

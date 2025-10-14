@@ -29,33 +29,22 @@ func (s SummaryHandler) Do(c *gin.Context) {
 	mux := sync.Mutex{}
 	wg := sync.WaitGroup{}
 
-	summary := map[string]interface{}{
+	summary := map[string]any{
 		"server": server,
+		"docker": nil,
 	}
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		dockerVersion, err := s.serverActions.DockerVersion(server)
+		dockerInfo, err := s.serverActions.DockerInfo(server)
 		if err != nil {
 			return
 		}
 
 		mux.Lock()
-		summary["dockerVersion"] = dockerVersion
-		mux.Unlock()
-	}()
+		summary["docker"] = dockerInfo
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		dockerVersion, err := s.serverActions.DockerComposeVersion(server)
-		if err != nil {
-			return
-		}
-
-		mux.Lock()
-		summary["dockerComposeVersion"] = dockerVersion
 		mux.Unlock()
 	}()
 
