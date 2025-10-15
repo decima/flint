@@ -5,7 +5,7 @@
     import {ERR_NEEDS_RE_LOGIN, ERR_NEEDS_REFRESH_TOKEN, ROUTE_LOGIN} from "$lib/constants";
     import {afterNavigate} from "$app/navigation";
     import {authToken} from "$lib/store/auth";
-    import Sidebar from "./Sidebar.svelte";
+    import Menu from "./Menu.svelte";
 
     export const ssr = false;
 
@@ -46,6 +46,6 @@
         {@render children?.()}
 
     </div>
-    <Sidebar/>
+    <Menu/>
 </div>
 

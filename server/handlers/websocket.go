@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
 	"flint/security"
 	"flint/server/handlers/utils"
+	"flint/service/contracts"
 	"io"
 	"log"
 	"net/http"
@@ -31,26 +33,62 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-type WebsocketRoute struct{}
-
-func NewWebsocketRoute() *WebsocketRoute {
-	return &WebsocketRoute{}
+type WebsocketSSHRoute struct {
+	serverCollectionManager contracts.ServerCollectionManager
+	jwt                     *security.Jwt
 }
 
-func (w WebsocketRoute) Route() (utils.Method, utils.Path, *security.Policy) {
-	return utils.GET, "/ws", security.AnonymousOrUser()
+func NewWebsocketSSHRoute(serverCollectionManager contracts.ServerCollectionManager, jwt *security.Jwt) *WebsocketSSHRoute {
+	return &WebsocketSSHRoute{serverCollectionManager: serverCollectionManager, jwt: jwt}
 }
 
-func (w WebsocketRoute) Do(c *gin.Context) {
+func (w WebsocketSSHRoute) Route() (utils.Method, utils.Path, *security.Policy) {
+	return utils.GET, "/ws/:serverName/ssh", security.AnonymousOrUser()
+}
+
+type authMessage struct {
+	Token string `json:"token"`
+}
+
+func (w WebsocketSSHRoute) Do(c *gin.Context) {
+	serverName := c.Param("serverName")
+	server, err := w.serverCollectionManager.GetServer(serverName)
 	wsConn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+
 	if err != nil {
 		return
 	}
 	defer wsConn.Close()
-	//  Informations de connexion SSH (à adapter)
-	auth := goph.Password("some_password")
 
-	client, err := goph.NewUnknown("decima", "127.0.0.1", auth)
+	_, message, err := wsConn.ReadMessage()
+	if err != nil {
+		return
+	}
+	authMessage := authMessage{}
+	err = json.Unmarshal(message, &authMessage)
+	if err != nil {
+		return
+	}
+
+	// Vérification du token JWT
+	if authMessage.Token != "" {
+		if _, err := w.jwt.ValidateRefreshToken(authMessage.Token); err != nil {
+			wsConn.WriteMessage(websocket.TextMessage, []byte("Invalid JWT token"))
+			return
+		}
+	}
+
+	//  Informations de connexion SSH (à adapter)
+	auth := goph.Password(server.Password)
+
+	client, err := goph.NewConn(&goph.Config{
+		User:     server.Username,
+		Addr:     server.Host,
+		Port:     uint(server.Port),
+		Auth:     auth,
+		Timeout:  goph.DefaultTimeout,
+		Callback: ssh.InsecureIgnoreHostKey(),
+	})
 	if err != nil {
 		log.Println("Impossible de se connecter au serveur SSH :", err)
 		return

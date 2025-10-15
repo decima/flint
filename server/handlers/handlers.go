@@ -29,7 +29,7 @@ var Module = fx.Provide(
 
 	AsRoute(NewHomepage),
 	AsRoute(users.NewGetAll),
-	AsRoute(NewWebsocketRoute),
+	AsRoute(NewWebsocketSSHRoute),
 )
 
 func AsRoute(f any) any {

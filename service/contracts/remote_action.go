@@ -18,6 +18,7 @@ type RemoteAction interface {
 type ServerActions interface {
 	DockerVersion(server model.Server) (string, error)
 	DockerComposeVersion(server model.Server) (string, error)
+	DockerInfo(server model.Server) (model.DockerInfo, error)
 }
 
 var InvalidServerErr = errors.New("invalid server")

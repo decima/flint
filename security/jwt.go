@@ -34,7 +34,7 @@ func (j *Jwt) GenerateRefreshToken(user string) (string, error) {
 	claims["refresh"] = true
 	claims["exp"] = time.Now().Add(tokenLifetime).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	secret := j.jwtSecret // Replace with your secret key
+	secret := j.jwtSecret
 	return token.SignedString(secret)
 }
 
