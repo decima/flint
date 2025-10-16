@@ -5,13 +5,9 @@
     import Editor from "$lib/components/fs/Editor.svelte";
 
     export let server: string = "";
-    let files: any[] = [];
     let content: string | null = "";
     let originalContent: string | null = "";
     let currentPath: string | null = null;
-    onMount(async () => {
-        files = await getFiles(server, "/")
-    })
 
 
     async function onClickFile(path: string) {
@@ -58,7 +54,7 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="col-span-1 md:col-span-1 lg:col-span-1">
-        <ul class="menu menu-xs bg-base-200 rounded-box max-w-xs w-full">
+        <ul class="menu menu-sm bg-base-200 rounded-box max-w-xs w-full">
             <FileTreeItem name="/" path="/" isDir="true" server={server}
                           onClickFile="{onClickFile}"
                           onAddFile={onAddFile}
