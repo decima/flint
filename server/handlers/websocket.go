@@ -78,9 +78,15 @@ func (w WebsocketSSHRoute) Do(c *gin.Context) {
 		}
 	}
 
-	//  Informations de connexion SSH (à adapter)
-	auth := goph.Password(server.Password)
-
+	var auth goph.Auth
+	if server.Key != "" {
+		auth, err = goph.RawKey(server.Key, server.KeyPass)
+		if err != nil {
+			return
+		}
+	} else {
+		auth = goph.Password(server.Password)
+	}
 	client, err := goph.NewConn(&goph.Config{
 		User:     server.Username,
 		Addr:     server.Host,

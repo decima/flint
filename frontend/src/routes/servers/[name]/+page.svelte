@@ -32,7 +32,7 @@
         loaded = true
     })
 </script>
-<div class="grid gap-4 grid-cols-1 md:grid-cols-1 lg:grid-cols-3">
+<div class="grid gap-4 grid-cols-1 md:grid-cols-1 lg:grid-cols-3 w-full">
     <Card classes={["col-span-1","md:col-span-2","lg:col-span-1"]} bind:loaded={loaded}
           title="Server details">
         <h1>{details.server?.host}:{details.server?.port}</h1>
